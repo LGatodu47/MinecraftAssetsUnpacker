@@ -1,0 +1,35 @@
+plugins {
+    id 'java'
+}
+
+group 'io.github.lgatodu47'
+archivesBaseName = 'minecraft-asset-unpacker'
+version '1.0.0'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.8.9'
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": "$mainClassName"
+    }
+}
+
+tasks.register('fatJar', org.gradle.jvm.tasks.Jar) {
+    archiveClassifier.set('fat')
+    group 'build'
+
+    manifest = jar.manifest
+
+    dependsOn configurations.runtimeClasspath
+    from { configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) } }
+
+    with jar
+}
